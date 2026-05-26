@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 from database import DB
 from models import Bill
 from services.billing_service import calculate_total
@@ -39,6 +39,27 @@ def add_bill():
     DB.session.commit()
 
     return redirect('/')
+
+@app.route('/api/bills', methods=['GET'])
+def get_bills():
+
+    bills = Bill.query.all()
+
+    output = []
+
+    for bill in bills:
+        bill_data = {
+            "id": bill.id,
+            "customer_name": bill.customer_name,
+            "product_name": bill.product_name,
+            "quantity": bill.quantity,
+            "price": bill.price,
+            "total": bill.total
+        }
+
+        output.append(bill_data)
+
+    return jsonify(output)
 
 if __name__ == '__main__':
     app.run(debug=True)
